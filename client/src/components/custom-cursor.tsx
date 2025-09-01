@@ -5,14 +5,22 @@ export function CustomCursor() {
   const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
+    let animationFrame: number;
+
     const updatePosition = (e: MouseEvent) => {
-      setPosition({ x: e.clientX, y: e.clientY });
+      if (animationFrame) {
+        cancelAnimationFrame(animationFrame);
+      }
+      
+      animationFrame = requestAnimationFrame(() => {
+        setPosition({ x: e.clientX, y: e.clientY });
+      });
     };
 
     const handleMouseEnter = () => setIsHovered(true);
     const handleMouseLeave = () => setIsHovered(false);
 
-    document.addEventListener('mousemove', updatePosition);
+    document.addEventListener('mousemove', updatePosition, { passive: true });
 
     // Add hover effect to interactive elements
     const interactiveElements = document.querySelectorAll('a, button, .glass-card, [data-cursor-hover]');
@@ -23,6 +31,9 @@ export function CustomCursor() {
     });
 
     return () => {
+      if (animationFrame) {
+        cancelAnimationFrame(animationFrame);
+      }
       document.removeEventListener('mousemove', updatePosition);
       interactiveElements.forEach(el => {
         el.removeEventListener('mouseenter', handleMouseEnter);

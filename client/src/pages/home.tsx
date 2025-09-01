@@ -10,16 +10,24 @@ import { ContactSection } from '@/components/contact-section';
 
 export default function Home() {
   useEffect(() => {
-    // Parallax effect for hero section
+    let ticking = false;
+    
+    // Optimized parallax effect with requestAnimationFrame
     const handleScroll = () => {
-      const scrolled = window.pageYOffset;
-      const hero = document.querySelector('#home');
-      if (hero) {
-        (hero as HTMLElement).style.transform = `translateY(${scrolled * 0.5}px)`;
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const scrolled = window.pageYOffset;
+          const hero = document.querySelector('#home');
+          if (hero && scrolled < window.innerHeight) {
+            (hero as HTMLElement).style.transform = `translateY(${scrolled * 0.3}px)`;
+          }
+          ticking = false;
+        });
+        ticking = true;
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
